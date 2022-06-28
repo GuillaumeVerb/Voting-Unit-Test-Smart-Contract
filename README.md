@@ -41,13 +41,34 @@ The entire voting process is as follows:
 
 ### - tests about getter fonctions:
 
-- tests about fonction getVoter
-- tests about fonction getProposal
+- tests about fonction getVoter:
 
-### - tests about the registration voter (via addVote)
-### - test about the proposal registration (via addProposal)
-### - tests about the vote session (via setVote)
+We want to know if the getter fonction getVoter works and the return is correct
+
+- tests about fonction getProposal:
+
+We want to know if the getter fonction getVoter works and the return is correct
+
+### - tests about the registration voter (via addVote):
+
+We want to check if the registration voter function works and if each voter is well registred (according to voting rules)
+
+### - test about the proposal registration (via addProposal):
+
+We want to check if the registration proposal function works and if each proposal is well registred (according to voting rules)
+
+### - tests about the vote session (via setVote):
+
+We want to check if the vote session function works and if each vote is well registred and for example if a voter can't vote twice
+
 ### - tests about Status and the modification of status 
+- tests about status in order to verify there is the right caller:
+
+We want to check it's only the owner who can change the status
+
+- tests about status with wrong order call: 
+
+We want to check if each status can be change only when it can change according to the voting rules (for example, you cannot pass from proposal registration session to the closing of voting session 
 
 
 

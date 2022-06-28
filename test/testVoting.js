@@ -12,7 +12,13 @@ contract("Voting", async accounts => {
 
     let VoterInstance;
 
+
+// tests about getter fonctions
+
     describe("test getter", function () {
+
+    // tests about fonction getVoter
+
         describe("test getter voter", function () {
         beforeEach(async () => {
             VoterInstance = await Voting.new({from: owner});
@@ -39,6 +45,8 @@ contract("Voting", async accounts => {
         });
         });
 
+    // tests about fonction getProposal
+
         describe("test getter proposal", function () {
 
             beforeEach(async () => {
@@ -60,6 +68,8 @@ contract("Voting", async accounts => {
                 });
         });
     });
+
+// tests about the registration voter (via addVote)
 
     describe("test registration session", function () {
         before(async () => {
@@ -88,7 +98,8 @@ contract("Voting", async accounts => {
 
     });
 
-    
+// test about the proposal registration (via addProposal)
+
     describe("test proposal session", function () {
         beforeEach(async () => {
             VoterInstance = await Voting.new({from: owner});
@@ -120,6 +131,7 @@ contract("Voting", async accounts => {
     });
 
 
+// tests about the vote session (via setVote)
 
     describe("test vote session ", function () {
         before(async () => {
@@ -154,7 +166,6 @@ contract("Voting", async accounts => {
 
         });
 
-
         it("Should fire 'Voted' event after registration.", async () => {
             const receipt = await VoterInstance.setVote(0, { from: owner });
             expectEvent(receipt, 'Voted', {
@@ -164,7 +175,6 @@ contract("Voting", async accounts => {
 
         });
 
-
         it("should be the proposal 0 the winner, and not the proposal 1", async () => {
             await VoterInstance.endVotingSession({ from: owner });
            
@@ -173,13 +183,13 @@ contract("Voting", async accounts => {
             expect(new BN(storedData.winningProposalID)).to.be.bignumber.not.equal(new BN(1));
         });
 
-
         it("Revert if Voting session havent started yet : setVote", async () => {
             await expectRevert(VoterInstance.setVote(0, { from: owner }),"Voting session havent started yet" );
         });
     });
 
 
+// Tests about Status and the modification of status 
 
     describe("test status", function () {
         describe("test status with good and bad caller", function () {
@@ -187,7 +197,6 @@ contract("Voting", async accounts => {
         before(async () => {
             VoterInstance = await Voting.new({from: owner});
         });
-
 
         it("Should not be able to start proposal session as non admin.", async () => {
             await expectRevert(
@@ -325,103 +334,3 @@ contract("Voting", async accounts => {
 });
 });
 
-
-
-//     it("Can start voting session only by admin (owner of contract).", async () => {
-//         const receipt = await this.instance.startVotingSession();
-
-//         expectEvent(receipt, 'WorkflowStatusChange', {
-//             previousStatus: new BN(2),
-//             newStatus: new BN(3)
-//         });
-
-//         const state = await this.instance.state();
-//         assert.equal(state, 3);
-//     });
-
-//     it("Should not be able to start voting session as non admin.", async () => {
-//         await expectRevert(
-//             this.instance.startVotingSession({ from: voter1 }),
-//             "Ownable: caller is not the owner"
-//         );
-//     });
-
-//     it("Can vote for proposal only by registred voters.", async () => {
-//         await this.instance.startVotingSession();
-
-//         await this.instance.setVote(0, { from: voter1 });
-//         await this.instance.setVote(0, { from: voter2 });
-//         await this.instance.setVote(1, { from: voter3 });
-
-//         const proposal0 = await this.instance.getOneProposal(0);
-//         const proposal1 = await this.instance.getOneProposal(1);
-
-//         assert.equal(proposal0.description, "13ème mois obligatoire.");
-//         assert.equal(proposal0.voteCount, 2);
-
-//         assert.equal(proposal1.description, "Tickets resto à 20 euros.");
-//         assert.equal(proposal1.voteCount, 1);
-
-//         const totalVotes = await this.instance.totalVotes();
-
-//         assert.equal(totalVotes, 3);
-//     });
-
-//     it("Should not be able to vote as non registred voter", async () => {
-//         await this.instance.startVotingSession();
-
-//         await expectRevert(
-//             this.instance.setVote(0, { from: unregistredVoter }),
-//             "You are not registered for voting."
-//         );
-//     });
-
-//     it("Should not be able to vote twice", async () => {
-//         await this.instance.startVotingSession();
-
-//         await this.instance.setVote(0, { from: voter1 });
-
-//         await expectRevert(
-//             this.instance.setVote(0, { from: voter1 }),
-//             "You cannot vote twice."
-//         );
-//     });
-
-//     it("Should fire 'Voted' event after registration.", async () => {
-//         await this.instance.startVotingSession();
-
-//         const receipt = await this.instance.setVote(0, { from: voter1 });
-
-//         expectEvent(receipt, 'Voted', {
-//             voter: voter1,
-//             proposalId: new BN(0)
-//         });
-//     });
-
-//     it("Can end voting session only by admin (owner of contract).", async () => {
-//         await this.instance.startVotingSession();
-
-//         await this.instance.setVote(0, { from: voter1 });
-//         await this.instance.setVote(0, { from: voter2 });
-//         await this.instance.setVote(1, { from: voter3 });
-
-//         const receipt = await this.instance.endVotingSession();
-
-//         expectEvent(receipt, 'WorkflowStatusChange', {
-//             previousStatus: new BN(3),
-//             newStatus: new BN(4)
-//         });
-
-//         const state = await this.instance.state();
-//         assert.equal(state, 4);
-//     });
-
-//     it("Should not be able to end voting session without a vote", async () => {
-//         await this.instance.startVotingSession();
-
-//         await expectRevert(
-//             this.instance.endVotingSession(),
-//             "Nobody has voted yet."
-//         );
-//     });
-// });

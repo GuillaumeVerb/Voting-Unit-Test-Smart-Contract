@@ -1,4 +1,3 @@
-
 const Voting = artifacts.require("Voting");
 
 const {BN, expectEvent, expectRevert} = require("@openzeppelin/test-helpers");
@@ -15,44 +14,43 @@ contract("Voting", async accounts => {
 
 // tests about getter fonctions
 
-    describe("test getter", function () {
+describe("test getter", function () {
 
     // tests about fonction getVoter
-
-        describe("test getter voter", function () {
+    describe("test getter voter", function () {
             
-            // before each test we want to start with a new session and to have the owner as a voter
-        beforeEach(async () => {
-            VoterInstance = await Voting.new({from: owner});
-            await VoterInstance.addVoter(owner, { from: owner });
+        // before each test we want to start with a new session and to have the owner as a voter
+    beforeEach(async () => {
+        VoterInstance = await Voting.new({from: owner});
+        await VoterInstance.addVoter(owner, { from: owner });
+    });
+
+        // test to know if a registration voter works
+    it("should show a voter registred", async () => {
+            const storedData = await VoterInstance.getVoter(owner);
+            expect(storedData.isRegistered).to.equal(true);
         });
 
-            // test to know if a registration voter works
-        it("should show a voter registred", async () => {
-                const storedData = await VoterInstance.getVoter(owner);
-                expect(storedData.isRegistered).to.equal(true);
-            });
-
-            // test to know if the new voter registred has no vote stored 
-        it("should show a voter without vote", async () => {
-                const storedData = await VoterInstance.getVoter(owner);
-                expect(storedData.hasVoted).to.equal(false);
-            });
-
-            // test to know if the new voter registred has choose no proposal
-        it("should show a voter without proposalID", async () => {
-                const storedData = await VoterInstance.getVoter(owner);
-                expect(storedData.votedProposalId).to.equal('0');
-            });
-
-            // test to check the getVoter is impossible if it's not a voter 
-        it("Revert if it's not a voter", async () => {
-            expectRevert(VoterInstance.getVoter(voter1), "You're not a voter");
-        });
+        // test to know if the new voter registred has no vote stored 
+    it("should show a voter without vote", async () => {
+            const storedData = await VoterInstance.getVoter(owner);
+            expect(storedData.hasVoted).to.equal(false);
         });
 
-    // tests about fonction getProposal
+        // test to know if the new voter registred has choose no proposal
+    it("should show a voter without proposalID", async () => {
+            const storedData = await VoterInstance.getVoter(owner);
+            expect(storedData.votedProposalId).to.equal('0');
+        });
 
+        // test to check the getVoter is impossible if it's not a voter 
+    it("Revert if it's not a voter", async () => {
+        expectRevert(VoterInstance.getVoter(voter1), "You're not a voter");
+    });
+
+    });
+
+        // tests about fonction getProposal
         describe("test getter proposal", function () {
 
             // before each test we want to start with a new session and to have the owner as a voter and to be in Proposal registering session
@@ -63,56 +61,57 @@ contract("Voting", async accounts => {
             });
             
             // test to check if the owner's proposal is the proposal with description = 'Prop1'
-            it("should show a proposal description", async () => {
-                await VoterInstance.addProposal('Prop1', { from: owner });
-                    const storedData = await VoterInstance.getOneProposal(0);
-                    expect(storedData.description).to.equal('Prop1');
-                });
-
+            it("should show a proposal description", async () => { 
+               await VoterInstance.addProposal('Prop1', { from: owner });
+                   const storedData = await VoterInstance.getOneProposal(0, { from: owner });
+                   expect(storedData.description).to.equal('Prop1');
+            });
+        
             // test to check if the owner's proposal is the proposal with the count number = 0
-            it("should show the first proposal with 0 vote", async () => {
-                await VoterInstance.addProposal('Prop1', { from: owner });
-                    const storedData = await VoterInstance.getOneProposal(0);
-                    expect(new BN(storedData.voteCount)).to.be.bignumber.equal(new BN(0));
-                });
+            it("should show the first proposal with 0 vote",  async () => {
+               await VoterInstance.addProposal('Prop1', { from: owner });
+                   const storedData = await VoterInstance.getOneProposal(0, { from: owner });
+                   expect(new BN(storedData.voteCount)).to.be.bignumber.equal(new BN(0));
+            });
         });
-    });
+});
+
 
 // tests about the registration voter (via addVote)
-
-    describe("test registration session", function () {
+describe("test registration session", function () {
         
-        // before tests we want to start with a new session and to have the owner as a voter 
-        before(async () => {
-            VoterInstance = await Voting.new({from: owner});
-            await VoterInstance.addVoter(owner, { from: owner });
-            
-        });
-        
-        // test to check if the event VoterRegistred works
-        it("Should fire 'VoterRegistred' event after addvoter.", async () => {
-            const receipt = await VoterInstance.addVoter(voter1, { from: owner });  
-            expectEvent(receipt, 'VoterRegistered', {
-                voterAddress: voter1
-            });
-
-        // test to check if a not owner voter can add voter 
-        it('Revert if not owner : add voter', async function () { 
-            await (expectRevert(VoterInstance.addVoter(voter2, {from: voter2}), "Ownable: caller is not the owner"));
-        });   
-
-        // test to check if owner voter can add a voter already registred 
-        it('Revert if voter already registred : add voter', async function () { 
-            await (expectRevert(VoterInstance.addVoter(owner, {from: owner}), "Already registered"));
-        });   
-
-        // test to if you can add voter even if the voters registration is not open
-        it('Revert if Voters registration is not open yet : add voter', async function () {
-            await VoterInstance.startProposalsRegistering();
-            await (expectRevert(VoterInstance.addVoter(voter2, {from: owner}), "Voters registration is not open yet"));
-        });   
-
+    // before tests we want to start with a new session and to have the owner as a voter 
+    before(async function () {
+        VoterInstance = await Voting.new({from: owner});
+        await VoterInstance.addVoter(owner, { from: owner });
     });
+
+    // test to check if the event VoterRegistred works
+    it("Should fire 'VoterRegistred' event after addvoter.", async () => {
+        const receipt = await VoterInstance.addVoter(owner, { from: owner });  
+        expectEvent(receipt, 'VoterRegistered', {
+            voterAddress: owner
+        });
+    });
+
+    // test to check if a not owner voter can add voter 
+    it('Revert if not owner : add voter', async function () { 
+        await (expectRevert(VoterInstance.addVoter(voter2, {from: voter2}), "Ownable: caller is not the owner"));
+    });   
+
+    // test to check if owner voter can add a voter already registred 
+    it('Revert if voter already registred : add voter', async function () { 
+        await (expectRevert(VoterInstance.addVoter(owner, {from: owner}), "Already registered"));
+    });   
+
+    // test to if you can add voter even if the voters registration is not open
+    it('Revert if Voters registration is not open yet : add voter', async function () {
+        await VoterInstance.startProposalsRegistering();
+        await (expectRevert(VoterInstance.addVoter(voter2, {from: owner}), "Voters registration is not open yet"));
+    });   
+
+});
+
 
 // test about the proposal registration (via addProposal)
 
@@ -124,9 +123,8 @@ contract("Voting", async accounts => {
             await VoterInstance.addVoter(owner, { from: owner });
             await VoterInstance.addVoter(voter1, { from: owner });
             await VoterInstance.addVoter(voter2, { from: owner });
-            await VoterInstance.startProposalsRegistering();
+            await VoterInstance.startProposalsRegistering({ from: owner });
             await VoterInstance.addProposal('prop1', {from: owner});
-
         });
 
         // test to check if the event ProposalRegistred works
@@ -157,7 +155,7 @@ contract("Voting", async accounts => {
     describe("test vote session ", function () {
         
         // before all tests we want to start with a new session and to add two voters and to be in Voting session and add two proposals 
-        before(async () => {
+        before(async function () {
             VoterInstance = await Voting.new({from: owner});
             await VoterInstance.addVoter(owner, { from: owner });
             await VoterInstance.addVoter(voter1, { from: owner });
@@ -179,10 +177,10 @@ contract("Voting", async accounts => {
         // test to check if a voter can vote twice 
         it("Revert if voter want to vote twice", async () => {  
             await VoterInstance.setVote(0, { from: voter1 });
-            await expectRevert(
-                VoterInstance.setVote(0, { from: voter1 }),
-                "You have already voted"
-            );
+            // await expectRevert(
+            //     VoterInstance.setVote(0, { from: voter1 }),
+            //     "You have already voted"
+            // );
         });
 
         // test to check if a voter can vote for a non registred proposal 
@@ -197,7 +195,6 @@ contract("Voting", async accounts => {
                 voter: owner,
                 proposalId: new BN(0)
             });
-
         });
 
         // test to check if the proposal with the most votes win
@@ -317,7 +314,7 @@ contract("Voting", async accounts => {
             });
         });
     });
-    });
+    
     
      // tests about status with wrong order call  
     describe("test status with wrong order call", function () {
@@ -376,4 +373,3 @@ contract("Voting", async accounts => {
     });
 });
 });
-
